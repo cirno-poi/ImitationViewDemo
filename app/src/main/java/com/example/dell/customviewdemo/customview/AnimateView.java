@@ -10,7 +10,6 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 
 import com.example.dell.customviewdemo.R;
@@ -62,8 +61,6 @@ public class AnimateView extends View {
 
     {
         bitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.maps);
-        Log.d("233333", "bitmap.getWidth()-------" + bitmap.getWidth());
-        Log.d("233333", "bitmap.getHeight()--------" + bitmap.getHeight());
         paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         camera = new Camera();
         path = new Path();
@@ -131,8 +128,8 @@ public class AnimateView extends View {
      */
     private void setPath(Double angdeg) {
         path.reset();
+        angdeg = Math.abs(angdeg) >= ROUND_ANGLE ? angdeg % ROUND_ANGLE : angdeg;
         angdeg = angdeg < 0 ? angdeg + ROUND_ANGLE : angdeg;
-        angdeg = angdeg >= ROUND_ANGLE ? angdeg - ROUND_ANGLE : angdeg;
         if (angdeg == RIGHT_ANGLE) {
             path.moveTo(0, getHeight() / 2);
             path.lineTo(0, 0);

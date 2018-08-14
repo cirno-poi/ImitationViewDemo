@@ -7,14 +7,14 @@
     android:orientation="vertical"
     tools:context=".activity.MainActivity">
 
-    <com.example.dell.customviewdemo.customview.MyFirstView
-        android:id="@+id/my_firstview"
+    <com.example.dell.customviewdemo.customview.AnimateView
+        android:id="@+id/animate_view"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:layout_weight="1" />
 
     <com.example.dell.customviewdemo.customview.AnimateView
-        android:id="@+id/animate_view"
+        android:id="@+id/animate_view2"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_gravity="center"

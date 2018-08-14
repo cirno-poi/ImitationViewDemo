@@ -20,8 +20,10 @@ public class MainActivity extends AppCompatActivity {
         animateView2 = findViewById(R.id.animate_view2);
         animateView.setDrawPath(true);
         animateView.setDrawBackground(true);
-        animateView.setAnimate();
-        animateView2.setAnimate();
+        animateView.setMainDuration(1200);
+        animateView2.setMainDuration(1200);
+        animateView.startAnimate();
+        animateView2.startAnimate();
     }
 
 }

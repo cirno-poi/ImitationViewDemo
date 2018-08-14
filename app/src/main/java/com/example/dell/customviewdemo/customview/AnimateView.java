@@ -1,8 +1,9 @@
 package com.example.dell.customviewdemo.customview;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
-import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -15,32 +16,74 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.view.View;
 
 import com.example.dell.customviewdemo.R;
 
+/**
+ * 模仿Flipboard动画效果的view
+ *
+ * @author cirno-poi
+ */
 public class AnimateView extends View {
-    Bitmap bitmap;
-    Paint paint;
-    Camera camera;
+    private Bitmap bitmap;
+    private Paint paint;
+    private Camera camera;
     /**
      * 动态变化部分的路径
      */
-    Path pathMove;
+    private Path pathMove;
     /**
      * 静止不变部分的路径
      */
-    Path pathStatic;
+    private Path pathStatic;
+
     private boolean drawPath = false;
     private boolean drawBackground = false;
     private long mainDuration = 1500;
 
-    float angDeg;
-    float roatDeg;
+    /**
+     * 平面旋转角度
+     */
+    private float degreeZ = 0;
+    /**
+     * 平面旋转结束的角度
+     */
+    private float endDeg = 270;
+    /**
+     * 图像动态部分沿Y轴旋转的角度
+     */
+    private float degreeYPart1 = 0;
+    /**
+     * 图像静态部分沿Y轴旋转的角度
+     */
+    private float degreeYPart2 = 0;
+    /**
+     * 图像抬起的最高角度
+     */
+    private float highDegree = 45;
+    /**
+     * 图像抬起的最低角度
+     */
+    private float lowDegree = 30;
+
     final int RIGHT_ANGLE = 90;
     final int ROUND_ANGLE = 360;
     final int STRAIGHT_ANGLE = 180;
 
+    {
+        bitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.maps);
+        paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        camera = new Camera();
+        pathMove = new Path();
+        pathStatic = new Path();
+
+        //设置“糊脸修正”
+        DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+        float newZ = -displayMetrics.density * 6;
+        camera.setLocation(0, 0, newZ);
+    }
 
     public AnimateView(Context context) {
         super(context);
@@ -53,6 +96,20 @@ public class AnimateView extends View {
     public AnimateView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
+
+    public AnimateView(Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+        super(context, attrs, defStyleAttr, defStyleRes);
+    }
+
+    public float getDegreeYPart2() {
+        return degreeYPart2;
+    }
+
+    public void setDegreeYPart2(float degreeYPart2) {
+        this.degreeYPart2 = degreeYPart2;
+        invalidate();
+    }
+
     public long getMainDuration() {
         return mainDuration;
     }
@@ -61,21 +118,45 @@ public class AnimateView extends View {
         this.mainDuration = mainDuration;
     }
 
-    public float getRoatDeg() {
-        return roatDeg;
+    public float getDegreeYPart1() {
+        return degreeYPart1;
     }
 
-    public void setRoatDeg(float roatDeg) {
-        this.roatDeg = roatDeg;
+    public float getHighDegree() {
+        return highDegree;
+    }
+
+    public void setHighDegree(float highDegree) {
+        this.highDegree = highDegree;
+    }
+
+    public float getLowDegree() {
+        return lowDegree;
+    }
+
+    public void setLowDegree(float lowDegree) {
+        this.lowDegree = lowDegree;
+    }
+
+    public float getEndDeg() {
+        return endDeg;
+    }
+
+    public void setEndDeg(float endDeg) {
+        this.endDeg = endDeg;
+    }
+
+    public void setDegreeYPart1(float degreeYPart1) {
+        this.degreeYPart1 = degreeYPart1;
         invalidate();
     }
 
-    public float getAngDeg() {
-        return angDeg;
+    public float getDegreeZ() {
+        return degreeZ;
     }
 
-    public void setAngDeg(float angDeg) {
-        this.angDeg = angDeg;
+    public void setDegreeZ(float degreeZ) {
+        this.degreeZ = degreeZ;
         invalidate();
     }
 
@@ -95,32 +176,29 @@ public class AnimateView extends View {
         this.drawBackground = drawBackground;
     }
 
-    public AnimateView(Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
-    }
+    public void startAnimate() {
+        ObjectAnimator animatorFirst = ObjectAnimator.ofFloat(this, "degreeYPart1", 0, highDegree);
+        ObjectAnimator animatorDegreeZ = ObjectAnimator.ofFloat(this, "degreeZ", 0, endDeg);
+        //不需要在旋转的过程中改变抬起的角度
+        //ObjectAnimator animatorRoatDeg = ObjectAnimator.ofFloat(this, "degreeYPart1", highDegree, lowDegree, highDegree);
+        ObjectAnimator animatorLast = ObjectAnimator.ofFloat(this, "degreeYPart2", 0, lowDegree);
 
-    {
-        bitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.maps);
-        paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        camera = new Camera();
-        pathMove = new Path();
-        pathStatic = new Path();
-    }
-
-    public void setAnimate() {
-        AnimatorSet animatorSet = new AnimatorSet();
-        ObjectAnimator animator = ObjectAnimator.ofFloat(this, "angDeg", 0, 270);
-        ObjectAnimator animator1 = ObjectAnimator.ofFloat(this, "roatDeg", 50, 20, 50);
-        animator.setEvaluator(new DegreesEvaluator());
-        animator1.setEvaluator(new DegreesEvaluator());
-        animator.setRepeatCount(ValueAnimator.INFINITE);
-        animator1.setRepeatCount(ValueAnimator.INFINITE);
+        final AnimatorSet animatorSet = new AnimatorSet();
         animatorSet.setDuration(mainDuration);
         animatorSet.setInterpolator(new FastOutSlowInInterpolator());
-        animatorSet.playTogether(animator, animator1);
+        animatorSet.playSequentially(animatorFirst, animatorDegreeZ, animatorLast);
         animatorSet.start();
+        animatorSet.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                super.onAnimationEnd(animation);
+                setDegreeZ(0);
+                setDegreeYPart1(0);
+                setDegreeYPart2(0);
+                animatorSet.start();
+            }
+        });
     }
-
 
     /**
      * 按路径裁切，canvas不动，让过canvas中心与Y轴平行的线沿中心进行旋转
@@ -141,7 +219,7 @@ public class AnimateView extends View {
         int centerY = getHeight() / 2;
         int x = centerX - bitmapWidth / 2;
         int y = centerY - bitmapHeight / 2;
-        setPathMove((double) angDeg);
+        setPathMove((double) degreeZ);
 
         /* 绘制Bitmap动态部分
          * 按路径裁切
@@ -151,13 +229,13 @@ public class AnimateView extends View {
         //按路径裁切
         canvas.clipPath(pathMove);
         camera.save();
-        camera.rotateY(-roatDeg);
-        canvas.rotate(-angDeg, centerX, centerY);
+        camera.rotateY(-degreeYPart1);
+        canvas.rotate(-degreeZ, centerX, centerY);
         canvas.translate(centerX, centerY);
         camera.applyToCanvas(canvas);
         //位置变化是倒序执行的
         canvas.translate(-centerX, -centerY);
-        canvas.rotate(angDeg, centerX, centerY);
+        canvas.rotate(degreeZ, centerX, centerY);
         camera.restore();
         paint.reset();
         if (drawBackground) {
@@ -167,7 +245,6 @@ public class AnimateView extends View {
         canvas.restore();
 
         /* 绘制Bitmap静态部分
-         * 比起动态部分只少了camera.rotateY(-roatDeg);这一句
          * 按路径裁切
          * 先裁切，再旋转
          * */
@@ -175,12 +252,14 @@ public class AnimateView extends View {
         //按路径裁切
         canvas.clipPath(pathStatic);
         camera.save();
-        canvas.rotate(-angDeg, centerX, centerY);
+        //由于与动态部分是中心对称的，故此处需要旋转相反的角度
+        camera.rotateY(degreeYPart2);
+        canvas.rotate(-degreeZ, centerX, centerY);
         canvas.translate(centerX, centerY);
         camera.applyToCanvas(canvas);
         //位置变化是倒序执行的
         canvas.translate(-centerX, -centerY);
-        canvas.rotate(angDeg, centerX, centerY);
+        canvas.rotate(degreeZ, centerX, centerY);
         camera.restore();
         paint.reset();
         if (drawBackground) {
@@ -206,6 +285,7 @@ public class AnimateView extends View {
     /**
      * 计算裁切路径，分不同情况考虑
      * 由于需要用到旋转角的tan函数，故需要特殊处理90度和270度
+     * 需要注意tan函数的值在90-180度以及270-360度的区间上是负的
      * 其余分4个区间进行计算
      *
      * @param angdeg 旋转角度
@@ -213,6 +293,7 @@ public class AnimateView extends View {
     private void setPathMove(Double angdeg) {
         pathMove.reset();
         pathStatic.reset();
+        //处理大于360的角和负角
         angdeg = Math.abs(angdeg) >= ROUND_ANGLE ? angdeg % ROUND_ANGLE : angdeg;
         angdeg = angdeg < 0 ? angdeg + ROUND_ANGLE : angdeg;
         if (angdeg == RIGHT_ANGLE) {
@@ -275,7 +356,7 @@ public class AnimateView extends View {
             pathStatic.rLineTo(0, -dY);
             return;
         }
-        //下半部分的2个临界角之间，此时tan值为负
+        //下半部分的2个临界角之间
         if (angdeg < (STRAIGHT_ANGLE + Math.toDegrees(criticalRad)) && angdeg >= (STRAIGHT_ANGLE - Math.toDegrees(criticalRad))) {
             float dX = (float) (getWidth() / 2 + (getHeight() / 2) * Math.tan(angrad));
             pathMove.moveTo(dX, getHeight());

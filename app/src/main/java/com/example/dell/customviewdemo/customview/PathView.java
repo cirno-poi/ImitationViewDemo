@@ -26,7 +26,8 @@ public class PathView extends View{
     }
 
     Paint paint = new Paint();
-    Path path = new Path(); // 初始化 Path 对象
+    // 初始化 Path 对象
+    Path path = new Path();
 
 
     @Override

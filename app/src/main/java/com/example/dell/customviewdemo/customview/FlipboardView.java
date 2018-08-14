@@ -5,6 +5,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Camera;
@@ -17,6 +18,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.View;
 
 import com.example.dell.customviewdemo.R;
@@ -26,7 +28,7 @@ import com.example.dell.customviewdemo.R;
  *
  * @author cirno-poi
  */
-public class AnimateView extends View {
+public class FlipboardView extends View {
     private Bitmap bitmap;
     private Paint paint;
     private Camera camera;
@@ -41,10 +43,11 @@ public class AnimateView extends View {
 
     private boolean drawPath = false;
     private boolean drawBackground = false;
+    private boolean isAutoPlay = false;
     private long mainDuration = 1500;
 
     /**
-     * 平面旋转角度
+     * 平面旋转角度，用于动画效果
      */
     private float degreeZ = 0;
     /**
@@ -52,11 +55,11 @@ public class AnimateView extends View {
      */
     private float endDeg = 270;
     /**
-     * 图像动态部分沿Y轴旋转的角度
+     * 图像动态部分沿Y轴旋转的角度，用于动画效果
      */
     private float degreeYPart1 = 0;
     /**
-     * 图像静态部分沿Y轴旋转的角度
+     * 图像静态部分沿Y轴旋转的角度，用于动画效果
      */
     private float degreeYPart2 = 0;
     /**
@@ -72,6 +75,8 @@ public class AnimateView extends View {
     final int ROUND_ANGLE = 360;
     final int STRAIGHT_ANGLE = 180;
 
+    AnimatorSet animatorSet;
+
     {
         bitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.maps);
         paint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -83,22 +88,29 @@ public class AnimateView extends View {
         DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
         float newZ = -displayMetrics.density * 6;
         camera.setLocation(0, 0, newZ);
+        setAnimate();
     }
 
-    public AnimateView(Context context) {
-        super(context);
+    public FlipboardView(Context context) {
+        this(context, null);
     }
 
-    public AnimateView(Context context, @Nullable AttributeSet attrs) {
-        super(context, attrs);
+    public FlipboardView(Context context, @Nullable AttributeSet attrs) {
+        this(context, attrs, 0);
     }
 
-    public AnimateView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    public FlipboardView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-    }
-
-    public AnimateView(Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
+        TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.FlipboardView);
+        if (typedArray == null) {
+            return;
+        }
+        drawPath = typedArray.getBoolean(R.styleable.FlipboardView_isDrawPath, false);
+        isAutoPlay = typedArray.getBoolean(R.styleable.FlipboardView_isAutoPlay, false);
+        drawBackground = typedArray.getBoolean(R.styleable.FlipboardView_isDrawBackground, false);
+        endDeg = typedArray.getFloat(R.styleable.FlipboardView_endDeg, 270);
+        mainDuration = typedArray.getInt(R.styleable.FlipboardView_mainDuration, 1500);
+        typedArray.recycle();
     }
 
     public float getDegreeYPart2() {
@@ -176,18 +188,25 @@ public class AnimateView extends View {
         this.drawBackground = drawBackground;
     }
 
-    public void startAnimate() {
+    public boolean isAutoPlay() {
+        return isAutoPlay;
+    }
+
+    public void setAutoPlay(boolean autoPlay) {
+        isAutoPlay = autoPlay;
+    }
+
+    public void setAnimate() {
         ObjectAnimator animatorFirst = ObjectAnimator.ofFloat(this, "degreeYPart1", 0, highDegree);
         ObjectAnimator animatorDegreeZ = ObjectAnimator.ofFloat(this, "degreeZ", 0, endDeg);
         //不需要在旋转的过程中改变抬起的角度
         //ObjectAnimator animatorRoatDeg = ObjectAnimator.ofFloat(this, "degreeYPart1", highDegree, lowDegree, highDegree);
         ObjectAnimator animatorLast = ObjectAnimator.ofFloat(this, "degreeYPart2", 0, lowDegree);
 
-        final AnimatorSet animatorSet = new AnimatorSet();
+        animatorSet = new AnimatorSet();
         animatorSet.setDuration(mainDuration);
         animatorSet.setInterpolator(new FastOutSlowInInterpolator());
         animatorSet.playSequentially(animatorFirst, animatorDegreeZ, animatorLast);
-        animatorSet.start();
         animatorSet.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
@@ -198,6 +217,32 @@ public class AnimateView extends View {
                 animatorSet.start();
             }
         });
+    }
+
+    public void startAnimate() {
+        if (animatorSet != null) {
+            animatorSet.start();
+        }
+    }
+
+    public void endAnimate() {
+        if (animatorSet != null) {
+            animatorSet.end();
+        }
+    }
+
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        if (isAutoPlay) {
+            startAnimate();
+        }
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        endAnimate();
     }
 
     /**

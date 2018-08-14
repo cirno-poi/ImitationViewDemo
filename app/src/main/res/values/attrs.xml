@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="FlipboardView">
+        <!--是否画路径-->
+        <attr name="isDrawPath" format="boolean" />
+        <!--是否画背景-->
+        <attr name="isDrawBackground" format="boolean" />
+        <!--是否自动播放-->
+        <attr name="isAutoPlay" format="boolean" />
+        <!--平面旋转结束的角度-->
+        <attr name="endDeg" format="float" />
+        <!--持续时间-->
+        <attr name="mainDuration" format="integer" />
+    </declare-styleable>
+
+
+</resources>

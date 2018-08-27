@@ -1,11 +1,13 @@
 package com.example.dell.customviewdemo.customview;
 
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 
 public class JikeLikeView extends View {
@@ -22,6 +24,18 @@ public class JikeLikeView extends View {
     private float lineSpace;
     private float moveWidth;
     private float staticWidth;
+
+    private int progressY;
+    private ObjectAnimator animator;
+
+    public int getProgressY() {
+        return progressY;
+    }
+
+    public void setProgressY(int progressY) {
+        this.progressY = progressY;
+        invalidate();
+    }
 
     public JikeLikeView(Context context) {
         this(context, null);
@@ -46,10 +60,16 @@ public class JikeLikeView extends View {
         rectStatic = new Rect();
     }
 
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        setAnimate();
+    }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        Log.d("progressY:", progressY + "");
         paint.setTextSize(textSize);
 //        canvas.drawText(content, offsetX, offsetY, paint);
 
@@ -85,12 +105,24 @@ public class JikeLikeView extends View {
 
         canvas.save();
         canvas.clipRect(rectMove);
-        canvas.translate(0, -lineSpace / 2);
+        canvas.translate(0, -lineSpace * progressY / 100);
         paint.setStyle(Paint.Style.FILL);
         canvas.drawText(content, offsetX, offsetY, paint);
         canvas.drawText(contentNext, offsetX, offsetY + lineSpace, paint);
         canvas.restore();
 
 
+    }
+
+    public void setAnimate() {
+        animator = ObjectAnimator.ofInt(this, "progressY", 0, 100);
+        animator.setDuration(5000);
+        animator.start();
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+//        animator.removeAllListeners();
     }
 }

@@ -10,7 +10,6 @@ import android.os.Bundle;
 import com.example.dell.customviewdemo.PageFragment;
 import com.example.dell.customviewdemo.PageModel;
 import com.example.dell.customviewdemo.R;
-import com.example.dell.customviewdemo.customview.FlipboardView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +22,7 @@ public class MainActivity extends AppCompatActivity {
 
     {
         pageModels.add(new PageModel(R.layout.flipboard_view_layout, R.string.flipboard_layout, R.layout.flipboard_view_layout_compare));
-        pageModels.add(new PageModel(R.layout.test_layout, R.string.test_layout, 0));
+        pageModels.add(new PageModel(R.layout.jikelike_view_layout, R.string.test_layout, 0));
     }
 
     @Override

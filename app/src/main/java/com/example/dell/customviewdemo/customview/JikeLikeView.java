@@ -7,7 +7,6 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 
 public class JikeLikeView extends View {
@@ -17,7 +16,7 @@ public class JikeLikeView extends View {
     private String contentNext = "124";
     private int offsetX = 250;
     private int offsetY = 500;
-    private float textSize = 200;
+    private float textSize = 50;
     private Rect rectMove;
     private Rect rectStatic;
     private float contentWidth;
@@ -25,14 +24,24 @@ public class JikeLikeView extends View {
     private float moveWidth;
     private float staticWidth;
 
-    private int progressY;
+    private float progressY;
+
+    public int getAlphaInt() {
+        return alphaInt;
+    }
+
+    public void setAlphaInt(int alphaInt) {
+        this.alphaInt = alphaInt;
+    }
+
+    private int alphaInt;
     private ObjectAnimator animator;
 
-    public int getProgressY() {
+    public float getProgressY() {
         return progressY;
     }
 
-    public void setProgressY(int progressY) {
+    public void setProgressY(float progressY) {
         this.progressY = progressY;
         invalidate();
     }
@@ -63,13 +72,12 @@ public class JikeLikeView extends View {
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        setAnimate();
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        Log.d("progressY:", progressY + "");
+        paint.reset();
         paint.setTextSize(textSize);
 //        canvas.drawText(content, offsetX, offsetY, paint);
 
@@ -89,8 +97,8 @@ public class JikeLikeView extends View {
         rectMove.top = (int) (offsetY - lineSpace * 2);
         rectMove.right = (int) (contentWidth + offsetX);
         rectMove.bottom = (int) (offsetY + lineSpace);
-        paint.setStyle(Paint.Style.STROKE);
-        canvas.drawRect(rectMove, paint);
+//        paint.setStyle(Paint.Style.STROKE);
+//        canvas.drawRect(rectMove, paint);
 
         rectStatic.left = offsetX;
         rectStatic.top = (int) (offsetY - lineSpace * 2);
@@ -107,22 +115,19 @@ public class JikeLikeView extends View {
         canvas.clipRect(rectMove);
         canvas.translate(0, -lineSpace * progressY / 100);
         paint.setStyle(Paint.Style.FILL);
+        //设置要被顶掉的数字的透明度
+        paint.setAlpha(255 - alphaInt);
         canvas.drawText(content, offsetX, offsetY, paint);
+        //设置下一个到来的数字的透明度
+        paint.setAlpha(alphaInt);
         canvas.drawText(contentNext, offsetX, offsetY + lineSpace, paint);
         canvas.restore();
 
 
     }
 
-    public void setAnimate() {
-        animator = ObjectAnimator.ofInt(this, "progressY", 0, 100);
-        animator.setDuration(5000);
-        animator.start();
-    }
-
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-//        animator.removeAllListeners();
     }
 }

@@ -1,6 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.example.dell.customviewdemo.customview.JikeLikeView xmlns:android="http://schemas.android.com/apk/res/android"
+
+
+<com.example.dell.customviewdemo.customview.CustomLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-</com.example.dell.customviewdemo.customview.JikeLikeView>
+    <com.example.dell.customviewdemo.customview.JikeLikeView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/jikeLikeView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    </com.example.dell.customviewdemo.customview.JikeLikeView>
+
+    <Button
+        android:id="@+id/animate_bt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right|bottom"
+        android:text="测试" />
+</com.example.dell.customviewdemo.customview.CustomLayout>

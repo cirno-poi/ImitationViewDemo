@@ -21,8 +21,8 @@ public class MainActivity extends AppCompatActivity {
     List<PageModel> pageModels = new ArrayList<>();
 
     {
-        pageModels.add(new PageModel(R.layout.flipboard_view_layout, R.string.flipboard_layout, R.layout.flipboard_view_layout_compare));
         pageModels.add(new PageModel(R.layout.jikelike_view_layout, R.string.test_layout, 0));
+        pageModels.add(new PageModel(R.layout.flipboard_view_layout, R.string.flipboard_layout, R.layout.flipboard_view_layout_compare));
     }
 
     @Override

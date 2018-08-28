@@ -9,22 +9,26 @@ import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.View;
 
+import com.example.dell.customviewdemo.Utils;
+
 public class JikeLikeView extends View {
 
     private Paint paint;
-    private String content = "123";
-    private String contentNext = "124";
+    private int contentInt = 129;
+    private String content;
+    private String contentNext;
     private int offsetX = 250;
     private int offsetY = 500;
-    private float textSize = 50;
+    private float textSize = 80;
     private Rect rectMove;
     private Rect rectStatic;
-    private float contentWidth;
+    private float contentNextWidth;
     private float lineSpace;
     private float moveWidth;
     private float staticWidth;
 
     private float progressY;
+    private int alphaInt;
 
     public int getAlphaInt() {
         return alphaInt;
@@ -34,8 +38,7 @@ public class JikeLikeView extends View {
         this.alphaInt = alphaInt;
     }
 
-    private int alphaInt;
-    private ObjectAnimator animator;
+
 
     public float getProgressY() {
         return progressY;
@@ -64,7 +67,7 @@ public class JikeLikeView extends View {
     }
 
     private void initView() {
-        paint = new Paint();
+        paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         rectMove = new Rect();
         rectStatic = new Rect();
     }
@@ -77,25 +80,24 @@ public class JikeLikeView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        content = contentInt + "";
+        contentNext = contentInt + 1 + "";
+
         paint.reset();
         paint.setTextSize(textSize);
-//        canvas.drawText(content, offsetX, offsetY, paint);
-
-        moveWidth = paint.measureText(content, content.length() - 1, content.length());
-        staticWidth = paint.measureText(content, 0, content.length() - 1);
 
         //内容宽度
-        contentWidth = paint.measureText(content);
+        contentNextWidth = paint.measureText(contentNext);
         //行高
         lineSpace = paint.getFontSpacing();
-        //静止的那一块
-        paint.getTextBounds(content, 0, content.length() - 1, rectStatic);
-        //动的那一块
-        paint.getTextBounds(content, content.length() - 1, content.length(), rectMove);
+        //静止的那一块的宽度
+        staticWidth = paint.measureText(contentNext, 0, contentNext.length() - 1 - Utils.getNineCount(contentInt));
+        //动的那一块的宽度
+        moveWidth = paint.measureText(contentNext, contentNext.length() - 1 - Utils.getNineCount(contentInt), contentNext.length());
 
-        rectMove.left = (int) (contentWidth - moveWidth + offsetX);
+        rectMove.left = (int) (contentNextWidth - (moveWidth) + offsetX);
         rectMove.top = (int) (offsetY - lineSpace * 2);
-        rectMove.right = (int) (contentWidth + offsetX);
+        rectMove.right = (int) (contentNextWidth + offsetX);
         rectMove.bottom = (int) (offsetY + lineSpace);
 //        paint.setStyle(Paint.Style.STROKE);
 //        canvas.drawRect(rectMove, paint);

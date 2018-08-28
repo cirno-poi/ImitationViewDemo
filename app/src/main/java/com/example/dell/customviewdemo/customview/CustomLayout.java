@@ -15,6 +15,7 @@ public class CustomLayout extends FrameLayout {
 
     Button animateBt;
     JikeLikeView jikeLikeView;
+    private boolean clickFlag = false;
 
     public CustomLayout(Context context) {
         super(context);
@@ -42,14 +43,22 @@ public class CustomLayout extends FrameLayout {
         animateBt.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                ObjectAnimator animator = ObjectAnimator.ofFloat(jikeLikeView, "progressY", 0, 100);
-                ObjectAnimator animatorAlpha = ObjectAnimator.ofInt(jikeLikeView, "alphaInt", 0, 255);
+                ObjectAnimator animator;
+                ObjectAnimator animatorAlpha;
+                if (clickFlag) {
+                    animator = ObjectAnimator.ofFloat(jikeLikeView, "progressY", 100, 0);
+                    animatorAlpha = ObjectAnimator.ofInt(jikeLikeView, "alphaInt", 255, 0);
+                } else {
+                    animator = ObjectAnimator.ofFloat(jikeLikeView, "progressY", 0, 100);
+                    animatorAlpha = ObjectAnimator.ofInt(jikeLikeView, "alphaInt", 0, 255);
+                }
 
                 AnimatorSet animatorSet = new AnimatorSet();
-                animatorSet.setDuration(1000);
+                animatorSet.setDuration(600);
                 animatorSet.setInterpolator(new FastOutSlowInInterpolator());
                 animatorSet.playTogether(animator, animatorAlpha);
                 animatorSet.start();
+                clickFlag = !clickFlag;
 
             }
         });

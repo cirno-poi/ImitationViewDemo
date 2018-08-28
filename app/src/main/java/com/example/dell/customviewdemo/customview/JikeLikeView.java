@@ -17,8 +17,8 @@ public class JikeLikeView extends View {
     private int contentInt = 129;
     private String content;
     private String contentNext;
-    private int offsetX = 250;
-    private int offsetY = 500;
+    private int offsetX = 180;
+    private int offsetY = 200;
     private float textSize = 80;
     private Rect rectMove;
     private Rect rectStatic;
@@ -38,7 +38,14 @@ public class JikeLikeView extends View {
         this.alphaInt = alphaInt;
     }
 
+    public int getContentInt() {
+        return contentInt;
+    }
 
+    public void setContentInt(int contentInt) {
+        this.contentInt = contentInt;
+        invalidate();
+    }
 
     public float getProgressY() {
         return progressY;
@@ -124,12 +131,5 @@ public class JikeLikeView extends View {
         paint.setAlpha(alphaInt);
         canvas.drawText(contentNext, offsetX, offsetY + lineSpace, paint);
         canvas.restore();
-
-
-    }
-
-    @Override
-    protected void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
     }
 }

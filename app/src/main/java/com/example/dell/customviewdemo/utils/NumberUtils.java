@@ -1,6 +1,6 @@
-package com.example.dell.customviewdemo;
+package com.example.dell.customviewdemo.utils;
 
-public class Utils {
+public class NumberUtils {
 
     /**
      * 判断是否为临界值（9、99、999等）

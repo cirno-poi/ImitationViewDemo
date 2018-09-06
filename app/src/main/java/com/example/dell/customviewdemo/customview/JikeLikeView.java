@@ -11,15 +11,10 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.support.annotation.Nullable;
-import android.support.v4.view.animation.FastOutLinearInInterpolator;
 import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.AnticipateOvershootInterpolator;
-import android.view.animation.BounceInterpolator;
-import android.view.animation.DecelerateInterpolator;
 import android.view.animation.OvershootInterpolator;
 
 import com.example.dell.customviewdemo.R;
@@ -49,7 +44,8 @@ public class JikeLikeView extends View {
     private int alphaInt;
     private float scale = 1f;
     private float scaleMin = 0.75f;
-
+    private long duration = 300;
+    private int bitmapSpace = 6;
 
     private Bitmap bitmapLike;
     private Bitmap bitmapShining;
@@ -116,54 +112,6 @@ public class JikeLikeView extends View {
         setBackgroundColor(Color.GRAY);
         bitmapLike = BitmapFactory.decodeResource(getResources(), R.drawable.ic_messages_like_unselected);
         bitmapShining = BitmapFactory.decodeResource(getResources(), R.drawable.ic_messages_like_selected_shining);
-
-        setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ObjectAnimator animatorText;
-                ObjectAnimator animatorAlpha;
-                ObjectAnimator animatorScale = ObjectAnimator.ofFloat(JikeLikeView.this, "scale", scaleMin, 1);
-
-                if (clickFlag) {
-                    animatorText = ObjectAnimator.ofFloat(JikeLikeView.this, "progressY", 100, 0);
-                    animatorAlpha = ObjectAnimator.ofInt(JikeLikeView.this, "alphaInt", 255, 0);
-                } else {
-                    animatorText = ObjectAnimator.ofFloat(JikeLikeView.this, "progressY", 0, 100);
-                    animatorAlpha = ObjectAnimator.ofInt(JikeLikeView.this, "alphaInt", 0, 255);
-                }
-
-                AnimatorSet animatorSet = new AnimatorSet();
-                animatorSet.setDuration(350);
-                animatorScale.setInterpolator(new OvershootInterpolator());
-                animatorText.setInterpolator(new FastOutSlowInInterpolator());
-                animatorSet.play(animatorText).with(animatorAlpha).with(animatorScale);
-                animatorScale.addListener(new Animator.AnimatorListener() {
-                    @Override
-                    public void onAnimationStart(Animator animation) {
-                        bitmapLike = BitmapFactory.decodeResource(getResources(), clickFlag ?
-                                R.drawable.ic_messages_like_unselected : R.drawable.ic_messages_like_selected);
-                        clickFlag = !clickFlag;
-                    }
-
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-
-                    }
-
-                    @Override
-                    public void onAnimationCancel(Animator animation) {
-
-                    }
-
-                    @Override
-                    public void onAnimationRepeat(Animator animation) {
-
-                    }
-                });
-                animatorSet.start();
-
-            }
-        });
     }
 
     @Override
@@ -233,7 +181,7 @@ public class JikeLikeView extends View {
         canvas.scale(scale, scale, rectStatic.left - bitmapLike.getWidth() / 2, rectStatic.top + (lineSpace / 2));
         canvas.drawBitmap(bitmapLike, rectStatic.left - bitmapLike.getWidth(), rectStatic.top + (lineSpace / 2) - (bitmapLike.getHeight() / 2), paint);
         if (clickFlag) {
-            canvas.drawBitmap(bitmapShining, rectStatic.left - bitmapLike.getWidth() + 6,
+            canvas.drawBitmap(bitmapShining, rectStatic.left - bitmapLike.getWidth() + bitmapSpace,
                     rectStatic.top + (lineSpace / 2) - (bitmapLike.getHeight() / 2) - bitmapShining.getHeight() / 2, paint);
         }
         canvas.restore();
@@ -245,13 +193,61 @@ public class JikeLikeView extends View {
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
             //执行缩小动画
             animator = ObjectAnimator.ofFloat(this, "scale", 1, scaleMin);
-            animator.setDuration(300);
+            animator.setDuration(duration);
             animator.start();
             return true;
         } else if (event.getAction() == MotionEvent.ACTION_UP) {
+            setMainAnimate();
             return performClick();
         }
         return super.onTouchEvent(event);
+    }
+
+    /**
+     * 主要动画的实现
+     */
+    private void setMainAnimate() {
+        ObjectAnimator animatorText;
+        ObjectAnimator animatorAlpha;
+        ObjectAnimator animatorScale = ObjectAnimator.ofFloat(JikeLikeView.this, "scale", scaleMin, 1);
+
+        if (clickFlag) {
+            animatorText = ObjectAnimator.ofFloat(JikeLikeView.this, "progressY", 100, 0);
+            animatorAlpha = ObjectAnimator.ofInt(JikeLikeView.this, "alphaInt", 255, 0);
+        } else {
+            animatorText = ObjectAnimator.ofFloat(JikeLikeView.this, "progressY", 0, 100);
+            animatorAlpha = ObjectAnimator.ofInt(JikeLikeView.this, "alphaInt", 0, 255);
+        }
+
+        AnimatorSet animatorSet = new AnimatorSet();
+        animatorSet.setDuration(duration);
+        animatorScale.setInterpolator(new OvershootInterpolator());
+        animatorText.setInterpolator(new FastOutSlowInInterpolator());
+        animatorSet.play(animatorText).with(animatorAlpha).with(animatorScale);
+        animatorScale.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                bitmapLike = BitmapFactory.decodeResource(getResources(), clickFlag ?
+                        R.drawable.ic_messages_like_unselected : R.drawable.ic_messages_like_selected);
+                clickFlag = !clickFlag;
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        });
+        animatorSet.start();
     }
 
 }

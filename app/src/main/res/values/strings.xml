@@ -2,5 +2,6 @@
     <string name="app_name">CustomViewDemo</string>
 
     <string name="flipboard_layout">仿Flipboard动画</string>
+    <string name="jike_layout">仿即刻点赞效果</string>
     <string name="test_layout">测试</string>
 </resources>

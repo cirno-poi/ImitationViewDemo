@@ -52,6 +52,7 @@ public class JikeLikeView extends View {
 
     private Animator animator;
     private boolean clickFlag = false;
+    private AnimatorSet animatorSet;
 
     public float getScale() {
         return scale;
@@ -219,7 +220,7 @@ public class JikeLikeView extends View {
             animatorAlpha = ObjectAnimator.ofInt(JikeLikeView.this, "alphaInt", 0, 255);
         }
 
-        AnimatorSet animatorSet = new AnimatorSet();
+        animatorSet = new AnimatorSet();
         animatorSet.setDuration(duration);
         animatorScale.setInterpolator(new OvershootInterpolator());
         animatorText.setInterpolator(new FastOutSlowInInterpolator());
@@ -250,4 +251,11 @@ public class JikeLikeView extends View {
         animatorSet.start();
     }
 
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        if (animatorSet != null) {
+            animatorSet.cancel();
+        }
+    }
 }

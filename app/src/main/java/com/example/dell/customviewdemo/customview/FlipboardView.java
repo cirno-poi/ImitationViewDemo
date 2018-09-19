@@ -18,7 +18,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.View;
 
 import com.example.dell.customviewdemo.R;
@@ -225,9 +224,9 @@ public class FlipboardView extends View {
         }
     }
 
-    public void endAnimate() {
+    public void cancelAnimate() {
         if (animatorSet != null) {
-            animatorSet.end();
+            animatorSet.cancel();
         }
     }
 
@@ -242,7 +241,7 @@ public class FlipboardView extends View {
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        endAnimate();
+        cancelAnimate();
     }
 
     /**
